@@ -23,13 +23,13 @@ public class PictureResource {
     private String endpoint;
 
     @PostMapping("/picture")
-    public void uploadPicture() throws IOException {
+    public Mono<Void> uploadPicture() throws IOException {
         log.debug("Configuring storage client");
         BlobServiceAsyncClient client =  new BlobServiceClientBuilder()
             .endpoint(endpoint)
             .buildAsyncClient();
 
-        client.createContainer("pictures")
+        return client.createContainer("pictures")
             .doOnError((e) -> {
                 log.info("Container already exists");
             })
@@ -41,6 +41,6 @@ public class PictureResource {
                         .getBlockBlobAsyncClient("picture.png")
                         .uploadFromFile("src/main/resources/image.png");
                 })
-            .subscribe();
+            .then();
     }
 }
